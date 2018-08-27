@@ -69,6 +69,6 @@ Here's a [link to my video result](https://github.com/chaidamu519/Udacity_SDC_Te
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-The results are very sensitive to the light conditions and the position as well as the size of the search windows. The overlapping windows on distant cars are less compared with close cars. Therefor, I change the `cells_per_step` to be `1` in order to increase the sensitivity. However, this increases the time for the processing of each frame.
+The results are very sensitive to the light conditions and the position as well as the size of the search windows. The overlapping windows on distant cars are less compared with close cars. Therefore, I change the `cells_per_step` to be `1` in order to increase the sensitivity. However, this increases the time for the processing of each frame.
 To improve the performance, I think we can use the convolutional neural network. In this way, the relatively slow sliding window search will be not needed and the speed and accuracy can then be improved significantly.
 
