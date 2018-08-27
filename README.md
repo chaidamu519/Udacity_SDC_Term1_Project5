@@ -34,8 +34,8 @@ I extracted the spatially binned color and color histograms. For spatially binne
 To extract the HOG features, I used the `hog` method from skimage library. I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I tried various combinations of parameters and compare the resulted accuracy of test dataset. The `YCrCb` `colorspace`is found to provide the best accuracy. `9` `orientations` are used for HOG, with `8` `pixels_per_cell` and `4` `cells_per_block`.
 
 ### Save the model 
-The svm model can be found [here] (https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/svc.p)
-The X_scaler can be found [here] (https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/X_scaler.p), which is used to normalize the feature in the test.
+The svm model can be found [here](https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/svc.p)
+The X_scaler can be found [here](https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/X_scaler.p), which is used to normalize the feature in the test.
 
 ## The main pipeline of vehicle tracking
 The code of the main pipeline is provided [here](https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/main_pipeline.ipynb).
