@@ -59,7 +59,7 @@ Since there are certain false positives on the images. I used the approach of he
 ![alt text][image3]
 
 ### Video pipeline
-The video pipeline is similar to the image pipeline. The treshold on single image is used to remove false positives that have shown few overlapping detections. In addition, a class is defined to record the previous `heat_map`, which is used to remove false positives that occur in one frame but not in the following. The `threshold` is lineraly proportional to the lenth of recent `heat_map`.
+The video pipeline is similar to the image pipeline. The treshold on single image is used to remove false positives that have shown fewer overlapping detections. In addition, a class is defined to record the previous `heat_map`, which is used to remove false positives that occur in one frame but not in the following. The `threshold` is lineraly proportional to the lenth of recent `heat_map`.
 Here's a [link to my video result](https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/project_video_out.mp4
 
 
