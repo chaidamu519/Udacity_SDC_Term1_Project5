@@ -12,87 +12,55 @@ The goals / steps of this project are the following:
 * Estimate a bounding box for vehicles detected.
 
 [//]: # (Image References)
-[image1]: ./examples/car_not_car.png
-[image2]: ./examples/HOG_example.jpg
-[image3]: ./examples/sliding_windows.jpg
-[image4]: ./examples/sliding_window.jpg
-[image5]: ./examples/bboxes_and_heat.png
-[image6]: ./examples/labels_map.png
-[image7]: ./examples/output_bboxes.png
-[video1]: ./project_video.mp4
+[image1]: https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/car_nocar.png
+[image2]: https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/multi_scale.png
+[image3]: https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/heat_map.png
 
-## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
-### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
----
-### Writeup / README
+## Training Support Vector Machine (SVM) model
 
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  [Here](https://github.com/udacity/CarND-Vehicle-Detection/blob/master/writeup_template.md) is a template writeup for this project you can use as a guide and a starting point.  
-
-You're reading it!
-
-### Histogram of Oriented Gradients (HOG)
-
-#### 1. Explain how (and identify where in your code) you extracted HOG features from the training images.
-
-The code for this step is contained in the first code cell of the IPython notebook (or in lines # through # of the file called `some_file.py`).  
-
-I started by reading in all the `vehicle` and `non-vehicle` images.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
-
+The code for training is provided [here](https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/SVM_Training.ipynb). Both color classification and Histogram of oriented gradients are used in the model. I used the dataset provided for this project.  Here is an example of one of each of the `vehicle` and `non-vehicle` classes:
 ![alt text][image1]
 
-I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I grabbed random images from each of the two classes and displayed them to get a feel for what the `skimage.hog()` output looks like.
 
-Here is an example using the `YCrCb` color space and HOG parameters of `orientations=8`, `pixels_per_cell=(8, 8)` and `cells_per_block=(2, 2)`:
+All the images in this project are read using `cv2.imread` and the resulted format is BGR with the intensity value between 0 and 255.
 
+### Color features
+
+I extracted the spatially binned color and color histograms. For spatially binned color, the resolution is used as hyperparameters for tuning. For color histograms, the number of bins are tuned to improve the svm model. The final `resolution` for spatially binned color is `16` and the number of bins is `32`.
+
+### Histogram of Oriented Gradients (HOG) features
+
+To extract the HOG features, I used the `hog` method from skimage library. I then explored different color spaces and different `skimage.hog()` parameters (`orientations`, `pixels_per_cell`, and `cells_per_block`).  I tried various combinations of parameters and compare the resulted accuracy of test dataset. The `YCrCb` `colorspace`is found to provide the best accuracy. `9` `orientations` are used for HOG, with `8` `pixels_per_cell` and `4` `cells_per_block`.
+
+### Save the model 
+The svm model can be found [here] (https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/svc.p)
+The X_scaler can be found [here] (https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/X_scaler.p), which is used to normalize the feature in the test.
+
+## The main pipeline of vehicle tracking
+The code of the main pipeline is provided [here](https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/main_pipeline.ipynb).
+
+
+### Image pipeline
+
+#### Hog Sub-sampling Window Search
+The search for the cars, I used the Hog Sub-sampling Window Search method that is discussed in the course. The HOG feastures are extract once from the entire image. Then, for each of a small set of predetermined window sizes (defined by a scale argument), the HOG features can be sub-sampled to get all of its overlaying windows. 
+
+#### Multi-scale Windows
+Then, I used the the approach of multi-scale windows to deal with cars at positions in the images. For vehicles far from the camera (approximately in the middle of the image), I used small windows with a `scale` of `1`, a `cells_per_step` of `1`. On the other hand, for the image part close to the camera, larger windows with larger steps are used. 
+
+#### Draw boxes
+Then, I used the `cv2.renctangle` function to draw boxes with different scales on the image. And the results are shwon here:
 
 ![alt text][image2]
 
-#### 2. Explain how you settled on your final choice of HOG parameters.
-
-I tried various combinations of parameters and...
-
-#### 3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
-
-I trained a linear SVM using...
-
-### Sliding Window Search
-
-#### 1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
-
-I decided to search random window positions at random scales all over the image and came up with this (ok just kidding I didn't actually ;):
-
+#### Heat map
+Since there are certain false positives on the images. I used the approach of heat map from these detections in order to combine overlapping detections and remove false positives. I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected. The results are shwon here:
 ![alt text][image3]
 
-#### 2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
-
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
-
-![alt text][image4]
----
-
-### Video Implementation
-
-#### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (somewhat wobbly or unstable bounding boxes are ok as long as you are identifying the vehicles most of the time with minimal false positives.)
-Here's a [link to my video result](./project_video.mp4)
-
-
-#### 2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
-
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap and then thresholded that map to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
-
-Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
-
-### Here are six frames and their corresponding heatmaps:
-
-![alt text][image5]
-
-### Here is the output of `scipy.ndimage.measurements.label()` on the integrated heatmap from all six frames:
-![alt text][image6]
-
-### Here the resulting bounding boxes are drawn onto the last frame in the series:
-![alt text][image7]
-
+### Video pipeline
+The video pipeline is similar to the image pipeline. The treshold on single image is used to remove false positives that have shown few overlapping detections. In addition, a class is defined to record the previous `heat_map`, which is used to remove false positives that occur in one frame but not in the following. The `threshold` is lineraly proportional to the lenth of recent `heat_map`.
+Here's a [link to my video result](https://github.com/chaidamu519/Udacity_SDC_Term1_Project5/blob/master/project_video_out.mp4
 
 
 ---
@@ -101,5 +69,6 @@ Here's an example result showing the heatmap from a series of frames of video, t
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+The results are very sensitive to the light conditions and the position as well as the size of the search windows. The overlapping windows on distant cars are less compared with close cars. Therefor, I change the `cells_per_step` to be `1` in order to increase the sensitivity. However, this increases the time for the processing of each frame.
+To improve the performance, I think we can use the convolutional neural network. In this way, the relatively slow sliding window search will be not needed and the speed and accuracy can then be improved significantly.
 
